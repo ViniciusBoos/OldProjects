@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{base :: head}"></head>
+
+    <body>
+        <div th:replace="~{base :: logo}"></div>
+        <div class="container">
+            <div th:replace="~{base :: titulo('Novo pedido')}"></div>
+            <div class="card mt-3">
+                <form th:action="@{/pedido/novo}" class="card-body" method="POST"
+                      th:object="${requisicaoNovoPedido}">
+                    <div class="mb-3">
+                        <label class="form-label" for="nome">Produto</label>
+                        <input class="form-control" id="nome" name="nome" placeholder="Digite o nome do produto" th:errorclass="is-invalid"
+                               th:field="*{nome}" />
+                        <small>Digite o nome do produto.</small>
+                        <div class="invalid-feedback" th:errors="*{nome}">
+                            erros do produto
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="urlProduto">Url</label>
+                        <input class="form-control" id="urlProduto" name="urlProduto" placeholder="Url do produto"
+                               th:errorclass="is-invalid" th:field="*{urlProduto}"/>
+                        <small>Procure em um site o produto que deseja e cole a url aqui.</small>
+                        <div class="invalid-feedback" th:errors="*{urlProduto}">
+                            erros do url do produto
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="urlImagem">Imagem</label>
+                        <input class="form-control" id="urlImagem" name="urlImagem" placeholder="Url da imagem"
+                               th:errorclass="is-invalid" th:field="*{urlImagem}"/>
+                        <small>Copie a url de uam boa imagem do produto e cole aqui.</small>
+                        <div class="invalid-feedback" th:errors="*{urlImagem}">
+                            erros da url da imagem
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="descricao">Descrição</label>
+                        <textarea class="form-control" id="descricao" name="descricao" placeholder="Descrição do produto"
+                                  th:field="*{descricao}"></textarea>
+                    </div>
+                    <button class="btn btn-primary mt-3 mb-3" type="submit">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{base :: head}"></head>
+    <body onload="onLoad()">
+        <div th:replace="~{base :: logo}"></div>
+
+        <div class="container" id="ofertas">
+            <div th:replace="~{base :: titulo('Faça sua oferta')}"></div>
+            <div class="mb-3"></div>
+            <div class="card mb-3" v-for="pedido in pedidos">
+                <div class="card-header alert-warning">{{pedido.nome}}</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-sm-8 col-md-7">
+
+                            <div class="">Produto</div>
+                            <div> <a class="mb-3" v-bind:href="pedido.urlProduto">{{pedido.nome}}</a></div>
+
+                            <div class="mt-3">Descrição</div>
+                            <div>
+                                <textarea disabled="disabled" class="form-control">{{pedido.descricao}}</textarea>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-5 mt-3">
+                                    Valor: <input v-bind:class="{'is-invalid': pedido.erros.valor != ''}" class="form-control" v-model="pedido.valor" />
+                                    <div v-if="pedido.erros.valor" class="invalid-feedback">
+                                        {{pedido.erros.valor}}
+                                    </div>
+                                </div>
+                                <div class="col-md-7 mt-3">
+                                    Data entrega: <input v-bind:class="{'is-invalid': pedido.erros.data != ''}" class="form-control" v-model="pedido.data"/>
+                                    <div v-if="pedido.erros.data" class="invalid-feedback">
+                                        {{pedido.erros.data}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <label class="mb-2">Comentário:</label>
+                                <textarea class="form-control" v-model="pedido.comentario"></textarea>
+                            </div>
+                            <button v-if="pedido.ofertaEnviada" class="btn btn-success mt-3 mb-3">Oferta enviada</button>
+                            <button v-else v-on:click="enviarOferta(pedido)" class="btn btn-primary mt-3 mb-3">Enviar oferta</button>
+                        </div>
+
+                        <div class="col-12 col-sm-4 col-md-5">
+                                <img class="img-thumbnail" v-bind:src="pedido.urlImagem"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <script type="text/javascript">
+            function onLoad() {
+                  var app = new Vue({
+                  el: '#ofertas',
+                  data: {
+                    pedidos : []
+                  },
+                  mounted() {
+                    axios
+                        .get('http://localhost:8080/api/pedidos/aguardando')
+                        .then(response => {
+                            response.data.forEach(pedido => {
+                                pedido.ofertaEnviada = false;
+                                pedido.erros = {
+                                    valor: '',
+                                    data: '',
+                                }
+                                }
+                            )
+                            this.pedidos = response.data
+                        })
+                  },
+                  methods: {
+                    enviarOferta: function(pedido) {
+                        pedido.erros = {
+                            valor: '',
+                            data: '',
+
+                        };
+
+                        axios
+                            .post('http://localhost:8080/api/ofertas', {
+                                pedidoId: pedido.id,
+                                valor: pedido.valor,
+                                data: pedido.data,
+                                comentario: pedido.comentario
+                            })
+                            .then(response => pedido.ofertaEnviada = true)
+                            .catch(error => {
+                                error.response.data.errors.forEach(error => {
+                                   pedido.erros[error.field] = error.defaultMessage;
+                                   })
+                                })
+                            }
+                    }
+                  }
+                );
+
+            }
+
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://unpkg.com/vuex"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    </body>
+</html>
